@@ -1,3 +1,6 @@
+# the codes below are for demo only, it does not include error handling mechanism.
+# The codes below works for my desk pro, some minor changes might be required to work on other devices.
+
 from webex_skills.api import SimpleAPI
 from webex_skills.dialogue import responses
 from webex_skills.models.mindmeld import DialogueState
@@ -8,31 +11,16 @@ import schedule
 import time
 
 api = SimpleAPI()
-openai.api_key = "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"
+openai.api_key = ""  # add your token here
 
-# Define the prompt for the conversation
-# prompt = "Hello, can you help me with something?"
 
-# Set some parameters for the API request
+# Set some parameters for OpenAI access
 model_engine = "text-davinci-003"
 max_tokens = 50
 temperature = 0.5
 
-# access_token_init = ''
-# refresh_token_init = 'OGE5MjlmM2MtMzAzNi00ZjlmLTgzZmEtOWFhYzExMjFjMmJiOThjM2Y2NWItNTUw_P0A1_fa1660e5-0650-418d-8c43-a22a585cdc2a'
-
-# define token dictionary as a variable
-tokens = {
-    "access_token": '',
-    "refresh_token": ''
-}
-
-# Load tokens from the file
-with open("/home/admin/apps/assistant/assistant/tokens.json", "r") as file:
-    tokens = json.load(file)
-
-# assign access token and refresh token
-access_token = tokens["access_token"]
+# add Webex Control Hub access token here, or codes here to get and refresh tokens
+access_token = ''
 
 def askTemperature(deviceId):
     base_url = "https://webexapis.com/v1/xapi/status"
@@ -85,7 +73,7 @@ async def map_on(current_state: DialogueState) -> DialogueState:
     new_state.directives = [
         responses.Reply(text),
         responses.Speak(text),
-        # 1. Create `display-web-view` directive and include payload
+        # specify the URL to be displayed by device
         responses.DisplayWebView("https://workspaces.dnaspaces.io/#/preview/?token=22409a46-c506-4e72-b3a2-79615b7a8973", "3D Map"),
         responses.Sleep(10),
     ]
@@ -102,7 +90,7 @@ async def music_on(current_state: DialogueState) -> DialogueState:
     new_state.directives = [
         responses.Reply(text),
         responses.Speak(text),
-        # 1. Create `display-web-view` directive and include payload
+        # specify the URL to be displayed by device
         responses.DisplayWebView("https://www.youtube.com/embed/TE9C1WrCIjA?autoplay=1", "2023 Top Songs"),
         responses.Sleep(10),
     ]
@@ -119,7 +107,6 @@ async def webview_off(current_state: DialogueState) -> DialogueState:
     new_state.directives = [
         responses.Reply(text),
         responses.Speak(text),
-        # 2. Create `clear-web-view` directive
         responses.ClearWebView(),
         responses.Sleep(10),
     ]
@@ -131,21 +118,18 @@ async def webview_off(current_state: DialogueState) -> DialogueState:
 @api.handle(pattern=r'.*\stemperature\s?.*')
 async def TemperatureQuery(current_state: DialogueState) -> DialogueState:
     new_state = current_state.copy()
+
+    # use two lines of code below to understand the data structure
     # state_attributes = vars(current_state)
     # print(state_attributes)
 
-    # Get DeviceId from Query first
+    # Get DeviceId first
     current_state_json = current_state.json()
     current_state_dict = json.loads(current_state_json)
     DeviceId = current_state_dict["context"]["developerDeviceId"]
     print(DeviceId)
 
-    # Query the workspaceId with DeviceId
-    # WorkspaceIdChecked = CheckWorkspaceId(DeviceId,access_token_init)
-    # print(WorkspaceIdChecked)
-    
-    # Check temperature with WorspaceId
-    # Temp = askTemp(WorkspaceIdChecked,access_token_init)
+    # use xAPI to retrieve the temperature of the room
     Temp = askTemperature(DeviceId)
     print(Temp)
 
@@ -163,7 +147,7 @@ async def TemperatureQuery(current_state: DialogueState) -> DialogueState:
 @api.handle(pattern=r'.*\speople\s?.*')
 async def PeopleCount(current_state: DialogueState) -> DialogueState:
     new_state = current_state.copy()
-    # Get DeviceId from Query first
+    # Get DeviceId first
     current_state_json = current_state.json()
     current_state_dict = json.loads(current_state_json)
     DeviceId = current_state_dict["context"]["developerDeviceId"]
