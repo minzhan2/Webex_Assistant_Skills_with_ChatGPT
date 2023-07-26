@@ -1,3 +1,6 @@
+# use this to refresh the token, and store them in tokens.json
+# I add refresh_token.py as a system service in CentOS, and schedule the service to restart every day to refresh tokens
+
 import json
 import schedule
 import time
